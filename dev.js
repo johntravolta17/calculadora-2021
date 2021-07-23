@@ -1,329 +1,393 @@
-$(document).ready(function() {
-            $(".main-container").fadeIn();
-            window.addEventListener("message", (event) => {
-                var item = event.data;
-                if (item !== undefined && item.type === "ui") {
-                    if (item.display === true) {
-                        $(".main-container").fadeIn();
-                        $(document).on("keydown", function(e) {
-                            if (e.which == 27) {
-                                fetch(`https://${GetParentResourceName()}/closeUI`, {
-                                        method: "POST",
-                                        headers: {
-                                            "Content-Type": "application/json; charset=UTF-8",
-                                        },
-                                        body: JSON.stringify({
-                                            ui: false,
-                                        }),
-                                    })
-                                    .then((resp) => resp.json())
-                                    .then((resp) => console.log("Closing UI"));
-                            }
-                        });
-                    } else if (item.display === false) {
-                        $(".main-container").fadeOut();
-                    }
-                }
-            });
+body {
+    background-color: transparent;
+}
 
-            function sumArray(numberArray) {
-                if (numberArray.length > 0) {
-                    return numberArray
-                        .map(function(elt) {
-                            return /^\d+$/.test(elt) ? parseInt(elt) : 0;
-                        })
-                        .reduce(function(a, b) {
-                            return a + b;
-                        });
-                } else {
-                    return 0;
-                }
-            }
+.main-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    font-family: "Montserrat";
+    background-color: transparent;
+}
 
-            function formatString(string) {
-                return string.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            }
+.container {
+    width: 100%;
+    height: 95%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-image: url("../images/bg.jpg");
+    border-radius: 35px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: auto;
+    padding: 0;
+}
 
-            function getCheckboxes() {
-                let totalMultas = [];
-                let totalAnos = [];
-                let data = [];
+.panel {
+    width: 95%;
+    height: 95%;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 35px;
+}
 
-                if ($("input[type=checkbox]:checked").length > 0) {
-                    $("input[type=checkbox]:checked").each(function() {
-                        totalMultas.push($(this).attr("multa"));
-                        totalAnos.push($(this).attr("anos"));
-                    });
-                }
+.scroll {
+    height: 70%;
+    overflow-y: auto;
+}
 
-                data.push(sumArray(totalMultas));
-                data.push(sumArray(totalAnos));
 
-                return data;
-            }
+/* width */
 
-            function getCheckboxesStrings() {
-                deptsSelected = "";
-                length = $("td input[type=checkbox]:checked").length;
+::-webkit-scrollbar {
+    width: 10px;
+}
 
-                if (length > 0) {
-                    $("td input[type=checkbox]:checked").each(function(index) {
-                        if (length <= index) {
-                            deptsSelected += `   - ${$("label[for='" + this.id + "']").text()}`;
-                        } else {
-                            deptsSelected += `   - ${$("label[for='" + this.id + "']").text()}\n`;
-                        }
-                    });
-                    return deptsSelected;
-                } else {
-                    return "";
-                }
-            }
 
-            function getCheckboxesGuarnicoes() {
-                deptsSelected = "";
-                length = $(".form-check input[type=checkbox]:checked").length;
+/* Track */
 
-                if (length > 0) {
-                    $(".form-check input[type=checkbox]:checked").each(function(index) {
-                        if (length <= index) {
-                            deptsSelected += `   - ${$(this).val()}`;
-                        } else {
-                            deptsSelected += `   - ${$(this).val()}\n`;
-                        }
-                    });
-                    return deptsSelected;
-                } else {
-                    return "";
-                }
-            }
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+}
 
-            function getPending() {
-                currentVal = $("#multas-pendentes").val().replace(/,/g, "");
-                pending = currentVal / 1000;
-                newVal = $("#multas-pendentes").val(formatString(currentVal));
-                return pending;
-            }
 
-            function formatInput(element) {
-                currentVal = element.val().replace(/,/g, "");
-                newVal = currentVal / 1000;
-                if (Number.isNaN(newVal)) {
-                    newVal = element.val("");
-                } else {
-                    newVal = element.val(formatString(currentVal));
-                }
-                return newVal;
-            }
+/* Handle */
 
-            function createQtyString(selector) {
-                return $(`#qty-${selector}`).val() ?
-                    `   - ${$(`#${selector}-label`).text()} x ${$(
-          `#qty-${selector}`
-        ).val()}`
-      : "";
-  }
+::-webkit-scrollbar-thumb {
+    background: rgb(3, 3, 212);
+    border-radius: 10px;
+}
 
-  function getQtyStrings() {
-    sujoData = createQtyString("sujo");
-    drogaData = createQtyString("drogas");
-    compData = createQtyString("comp");
-    desacatoData = createQtyString("desacato");
-    desobedienciaData = createQtyString("desobediencia");
-    semaforoData = createQtyString("semaforo");
-    muniData = createQtyString("muni");
-    tHomiCivil = createQtyString("t-homicidio-civil");
-    tHomiMilitar = createQtyString("t-homicidio-militar");
-    HomiMilitar = createQtyString("homicidio-militar");
-    brancaData = createQtyString("branca");
 
-    return `${
-      semaforoData ? `${semaforoData}\n` : ""
-    }${sujoData ? `${sujoData}\n` : ""}${drogaData ? `${drogaData}\n` : ""}${brancaData ? `${brancaData}\n` : ""}${compData ? `${compData}\n` : ""}${muniData ? `${muniData}\n` : ""}${desobedienciaData ? `${desobedienciaData}\n` : ""}${desacatoData ? `${desacatoData}\n` : ""}${tHomiCivil ? `${tHomiCivil}\n` : ""}${tHomiMilitar ? `${tHomiMilitar}\n` : ""}${HomiMilitar ? `${HomiMilitar}\n` : ""}`;
-  }
+/* Handle on hover */
 
-  function setInputsData(tMultas, tAnos) {
-    $("#total-multas").text("$ " + formatString(Math.round(tMultas)));
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(2, 2, 153);
+}
 
-    $("#total-anos").text(Math.round(tAnos));
-  }
+.main-form {
+    height: 100%;
+    text-align: center;
+    padding: 2.5%;
+    position: relative;
+}
 
-  function getQty(selector, mUnit, aUnit) {
-    inputVal = $(selector).val().replace(/,/g, "");
-    multa = inputVal * mUnit;
-    anos = inputVal * aUnit;
+.form-container {
+    text-align: left;
+}
 
-    return [multa, anos];
-  }
+.form-elements {
+    text-align: left;
+}
 
-  function sumAllInputs() {
-    sujoData = getQty("#qty-sujo", 1, 0.001);
-    drogaData = getQty("#qty-drogas", 100, 1);
-    brancaData = getQty("#qty-branca", 5000, 0 );
-    compData = getQty("#qty-comp", 100, 1);
-    muniData = getQty("#qty-muni", 1, 1);
-    tHomiCivil = getQty("#qty-t-homicidio-civil", 16000, 16);
-    homiMilitar = getQty("#qty-homicidio-militar", 48000, 48);
-    semaforo = getQty("#qty-semaforo", 5000, 0);
-    desacato = getQty("#qty-desacato", 20000, 15);
-    desobediencia = getQty("#qty-desobediencia", 20000, 15);
-    pending = getPending();
-    checkboxes = getCheckboxes();
+.tab-content {
+    padding: 0%;
+}
 
-    totalMultas =
-      sujoData[0] +
-      brancaData[0] +
-      drogaData[0] +
-      compData[0] +
-      muniData[0] +
-      checkboxes[0] +
-      tHomiCivil[0] +
-      homiMilitar[0] +
-      semaforo[0] +
-      desacato[0] +
-      desobediencia[0];
+.table-config {
+    text-align: center;
+}
 
-    totalAnos =
-      sujoData[1] +
-      drogaData[1] +
-      compData[1] +
-      muniData[1] +
-      pending +
-      checkboxes[1] +
-      tHomiCivil[1] +
-      homiMilitar[1] +
-      semaforo[1] +
-      desacato[1] +
-      desobediencia[1];
+.ftd {
+    text-align: left;
+}
 
-    if (totalMultas > 600000) {
-      totalMultas = 600000;
+.main-title {
+    font-weight: bold;
+    margin-bottom: 2%;
+    font-size: 2.5rem;
+    font-family: "Cinzel Decorative";
+    text-decoration: underline;
+}
+
+#total-multas,
+#total-anos {
+    color: black;
+    font-family: "Black Ops One";
+}
+
+#total-multas {
+    color: rgb(2, 77, 2);
+}
+
+#total-anos {
+    color: rgb(116, 3, 3);
+}
+
+.total-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    font-family: "Cinzel Decorative";
+    justify-content: space-evenly;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    padding-top: 1.5%;
+}
+
+.clean {
+    position: absolute;
+    right: 2%;
+    top: 3%;
+}
+
+.cred-close,
+.obs-close {
+    position: absolute;
+    right: 0%;
+    top: 50%;
+}
+
+.nav-link {
+    color: rgb(3, 3, 212);
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.logo {
+    background-image: url("../images/universe-logo.png");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: absolute;
+    border-radius: 20%;
+    top: 0%;
+    left: 3%;
+    width: 6%;
+    height: 8%;
+}
+
+.tab-container {
+    overflow-y: hidden;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+}
+
+.credits,
+.obs-container,
+.ficha-container,
+.ficha-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 35px;
+    position: absolute;
+    width: 40%;
+    height: 55%;
+    z-index: 1;
+    font-family: "Montserrat";
+    font-weight: 500;
+    top: 25%;
+    right: 32%;
+}
+
+.credit-text,
+.obs {
+    padding: 5%;
+    text-align: justify;
+    line-height: 1.5rem;
+}
+
+strong {
+    font-weight: bold;
+}
+
+.cred-title {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.sc {
+    text-align: center;
+    line-height: 1.5rem;
+    font-family: "Cinzel Decorative";
+    font-weight: 600;
+}
+
+.credit-title {
+    text-align: center;
+    font-family: "Cinzel Decorative";
+    font-weight: bold;
+    font-size: 2rem;
+    text-decoration: underline;
+}
+
+.multas-pendentes {
+    width: 17%;
+    position: absolute;
+    left: 13.5%;
+    top: 2.5%;
+    font-size: 1rem;
+    font-family: "Cinzel Decorative";
+}
+
+.multas-pendentes label,
+span {
+    font-weight: 600;
+}
+
+.mp-input,
+.mp-input:focus {
+    text-align: center;
+    margin: auto;
+    font-family: "Black Ops One";
+    color: rgb(2, 77, 2);
+}
+
+.i-group {
+    width: 100%;
+}
+
+#inputGroupPrepend2 {
+    font-family: "Montserrat";
+}
+
+.info {
+    position: absolute;
+    right: 15%;
+    top: 3%;
+    color: white;
+}
+
+.qty {
+    width: 30%;
+    height: 2.2vh;
+    margin: auto;
+    text-align: center;
+}
+
+.fc {
+    width: 6.5%;
+    height: 3.5%;
+    transform: rotate(270deg);
+    position: relative;
+    left: -2%;
+    top: 50%;
+    background-color: #ffc107;
+    text-align: center;
+    border-radius: 35px 35px 0 0;
+    padding: 0.55%;
+    color: white;
+    z-index: 1;
+    transition: all 0.2s ease-in-out;
+}
+
+.fc:hover {
+    background-color: red;
+    cursor: pointer;
+    transform: translateX(-0.28rem) scaleX(1.3) rotate(270deg);
+    background-color: #dda704;
+}
+
+.ficha-form {
+    padding: 5% 10%;
+    background-color: #cccccc;
+    border-radius: 35px;
+}
+
+.ficha-copy {
+    padding: 1%;
+}
+
+.ficha-form-close {
+    position: relative;
+    left: 85%;
+}
+
+#ficha-copy {
+    width: 95%;
+    height: 95%;
+    border-radius: 35px;
+    padding: 5%;
+    background-color: #cccccc;
+}
+
+textarea {
+    resize: none;
+}
+
+.form-row {
+    margin-top: 1%;
+}
+
+.form-check {
+    font-size: 0.8rem;
+    margin-bottom: 10%;
+    display: flex;
+    height: 10% !important;
+    align-items: center;
+    font-weight: bold;
+}
+
+.ficha-container {
+    top: 15%;
+    height: 70%;
+    right: 30% !important;
+}
+
+td label {
+    width: 100%;
+}
+
+.ficha-title {
+    text-align: center;
+    font-size: 1.5rem;
+    font-family: "Cinzel Decorative";
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+@media only screen and (max-width: 1024px) {
+    .fc {
+        left: -1.9%;
     }
-
-    if (totalAnos > 180) {
-      totalAnos = 180;
+    .fc:hover {
+        transform: translateX(-0.2rem) scaleX(1.3) rotate(270deg);
     }
-
-    if ($("#primario").is(":checked")) {
-      totalAnos = totalAnos / 2;
+    .multas-pendentes {
+        top: 1%;
+        left: 11%;
     }
-
-    setInputsData(totalMultas, totalAnos);
-  }
-
-  $(".clean").click(function () {
-    $("input[type=checkbox]:checked").prop("checked", false);
-    $("#total-multas").text("$ 0");
-    $("#total-anos").text("0");
-    $("#multas-pendentes").val("");
-    $("#qty-sujo").val("");
-    $("#qty-branca").val("");
-    $("#qty-drogas").val("");
-    $("#qty-comp").val("");
-    $("#qty-muni").val("");
-    $("#qty-homicidio-militar").val("");
-    $("#qty-t-homicidio-civil").val("");
-    $("#qty-t-homicidio-militar").val("");
-    $("#qty-semaforo").val("");
-    $("#qty-desobediencia").val("");
-    $("#qty-desacato").val("");
-    $("#nome").val("");
-    $("#idade").val("");
-    $("#id").val("");
-    $("#pass").val("");
-  });
-
-  $(".cred-close").click(function () {
-    $(".credits").fadeOut();
-  });
-
-  $(".obs-close").click(function () {
-    $(".obs-container").fadeOut();
-  });
-
-  $(".ficha-close").click(function () {
-    $(".ficha-copy").fadeOut();
-  });
-
-  $(".logo").click(function () {
-    $(".credits").fadeIn();
-  });
-
-  $(".ficha-form-close").click(function () {
-    $(".ficha-container").fadeOut();
-  });
-
-  $(".fc").click(function () {
-    $(".ficha-container").fadeIn();
-    $("#ficha-tempo").val(`${$("#total-anos").text()} Meses`);
-    $("#ficha-multa").val($("#total-multas").text());
-    $("#ficha-pendentes").val(
-      `$ ${$("#multas-pendentes").val() ? $("#multas-pendentes").val() : 0}`
-    );
-    $("#motivo").val(getCheckboxesStrings() + getQtyStrings());
-  });
-
-  $("#btn-ficha").click(function () {
-    nome = $("#nome").val();
-    nomeStr = `Nome: ${nome}`;
-    idade = $("#idade").val();
-    idadeStr = `Idade: ${idade}`;
-    passaporte = $("#pass").val();
-    passaporteStr = `Passaporte: ${passaporte}`;
-   
-    motivos = `Motivo:\n${$("#motivo").val()}`;
-    tempo = `Tempo De Pena: ${$("#ficha-tempo").val()}`;
-    multa = `Multa: R${$("#ficha-multa").val()}`;
-    guarnicao = getCheckboxesGuarnicoes();
-    guarnicaoStr = `Guarnição:\n${guarnicao}`;
-    pendientes = `Multas Pendentes: R$${
-      $("#multas-pendentes").val() ? $("#multas-pendentes").val() : 0
-    } (+ ${Math.round(getPending())} Meses)`;
-
-    if ($("#primario").is(":checked")) {
-      tempo = tempo + ` (Reu primario)`;
+    .info,
+    .clean {
+        top: 1.5%;
     }
-
-    emptyInputCheck =
-      nome == "" || idade == "" || passaporte == "" ? true : false;
-
-    $("#g-error").fadeOut();
-    $("#i-error").fadeOut();
-
-    if (guarnicao == "" || emptyInputCheck) {
-      if (guarnicao == "") {
-        $("#g-error").fadeIn();
-      }
-      if (emptyInputCheck) {
-        $("#i-error").fadeIn();
-      }
-    } else {
-      $("#g-error").fadeOut();
-      $("#i-error").fadeOut();
-      $("#ficha-copy").text(
-        `${nomeStr}\n${idadeStr}\n${passaporteStr}\n${motivos}${pendientes}\n${tempo}\n${multa}\n${guarnicaoStr}`
-      );
-      $(".ficha-container").fadeOut();
-      $(".ficha-copy").fadeIn();
+    .logo {
+        top: 0%;
     }
-  });
+    .credits {
+        width: 50%;
+        right: 25%;
+    }
+}
 
-  $(".info").click(function () {
-    $(".obs-container").fadeIn();
-  });
-
-  $("input:checkbox").change(function () {
-    sumAllInputs();
-  });
-
-  $("#pass, #idade").on("input", function () {
-    formatInput($(this));
-  });
-
-  $(
-    "#qty-sujo, #qty-branca, #qty-drogas, #qty-comp, #qty-tartarugas, #qty-muni, #multas-pendentes, #qty-homicidio-militar, #qty-t-homicidio-civil, #qty-t-homicidio-militar, #qty-semaforo, #qty-desobediencia, #qty-desacato"
-  ).on("input", function () {
-    formatInput($(this));
-    sumAllInputs();
-  });
-});
+@media only screen and (max-width: 1366px) {
+    .fc {
+        left: -1.6%;
+    }
+    .fc:hover {
+        transform: translateX(-0.18rem) scaleX(1.3) rotate(270deg);
+    }
+    .logo {
+        top: 3%;
+    }
+    .credits {
+        width: 50%;
+        right: 25%;
+    }
+    .ficha-container {
+        height: 85%;
+        top: 10%;
+        width: 45%;
+    }
+}
